@@ -1,0 +1,110 @@
+CREATE DATABASE Geography;
+USE Geography;
+
+CREATE TABLE Countries(
+id_coun int AUTO_INCREMENT, 
+Country_name text NOT NULL, 
+population_mln int NOT NULL,
+PRIMARY KEY (id_coun)
+);
+CREATE TABLE Cities(
+id_city int AUTO_INCREMENT,
+City_name text NOT NULL, 
+population_tys int NOT NULL,
+location text NOT NULL,
+PRIMARY KEY (id_city),
+FOREIGN KEY (location REFERENCES Countries (Country_name))
+);
+CREATE TABLE well-known(
+id_num int AUTO_INCREMENT,
+person_name texttext NOT NULL,
+activity_category NOT NULL,
+Country NOT NULL,
+PRIMARY KEY (id_num),
+FOREIGN KEY (Country REFERENCES Countries (Country_name)),
+);
+
+INSERT INTO Countries VALUES 
+	(1, Ukraine, 47),
+	(2, Russia, 142),
+	(3, Poland, 39),
+	(4, Belarus, 9),
+	;
+INSERT INTO Cities (City_name, population_tys, location) VALUES 
+	(Kiev, 2840, Ukraine),
+	(Odessa, 1010, Ukraine),
+	(Lvov, 758, Ukraime),
+	(Moscow, 15512, Russia),
+	(Saint Petersburg, 5400, Russia),
+	(Warsaw, 3100, Poland),
+	(Krakow, 1200, Poland),
+	(Minsk, 2646, Belarus),
+	(Brest, 2206, Belarus),
+	;
+INSERT INTO well_known (person_name, activity_category, Country) VALUES 
+	(Taras Shevchenko, poet, Ukraine),
+	(Valeriy Kipelov, singer, Russia),
+	(Alexandr Lukashenko, president, Belarus),
+	(Ezhi Putrament, writer, Poland)
+
+
+ВЫБОР ИЗ ОДНОЙ ТАБЛИЦЫ{{{
+SELECT City_name, population_tys FROM Cities;
+//Выводит список городов и их население с таблицы Cities
+
+SELECT * FROM well_known ORDER BY person_name DESC;
+//Выводит все значения в алфавитном порядке(по убыванию) из таблицы well_known, сортировка по стобцу person_name/ (Имя личности, род теятельности, его страну)
+
+SELECT City_name FROM Cities WHERE location='Ukraine';
+//Выводит перечень городов из таблицы Cities, которые находятся в Украине
+
+SELECT * FROM Countries WHERE Country_name NOT LIKE '%Rus%';
+//Выводит все значиния из таблицы Countries, в которых отсутствует соответствие образцу "Rus"
+}}}
+
+
+ВЛОЖЕННЫЕ ЗАПРОСЫ{{{
+SELECT person_name, Country FROM well_known WHERE Country =
+	(SELECT Country_name FROM Countries WHERE population>40);
+//Выводит список тех личностей и их стран с таблицы well_known, которые находились в странах с населением больше 40млн
+
+SELECT population_mln FROM Countries WHERE Country_name IN
+	((SELECT location FROM Cities WHERE population_tys >= 3000) OR 
+	(SELECT Country FROM well_known WHERE activity_category = 'poet')
+	);
+//Выводит население стран, в которых присутствуют города с населением 3млн и больше либо в которых проживали(ют) поэты
+}}}
+
+
+ВЫВОД ОБЬЕДЕНЕННЫХ ТАБЛИЦ{{{
+SELECT Cities.City_name, Countries.population_mln FROM Cities, Countries WHERE Cities.location=Countries.Country_name;
+//Выводит названия городов и население стран, в которых они находятся
+
+SELECT Countries.Country_name, Cities.City_name, well_known.person_name
+	FROM Countries, Cities, well_known
+	WHERE Countries.Country_name=Cities.location AND Countries.Country_name=well_known.Country;
+//Выводит Значения с таблиц Countries, Cities, well_known, в которых совпадают названия стран
+
+SELECT Cities.City_name, well_known.person_name
+	FROM Cities LEFT JOIN well_known
+	ON Cities.location = well_known.Country;
+//Выводит все значения с таблицы Cities и связанные с ними (через название страны) личности
+}}}
+
+
+ПОДСЧЕТЫ В ТАБЛИЦАХ{{{
+SELECT COUNT(person_name) FROM well_known
+//Выводит количество строк с именами известных личностей с таблицы well_known
+
+SELECT  MIN(population_mln), MAX(population_mln), AVG(population_mln) FROM Countries;
+//Выводит минимальное, максимальное и среднее значения населения с таблицы стран
+
+SELECT  SUM(population_tys) FROM Cities
+	WHERE location='Poland';
+//Выводит общую сумму населения городов с Польши
+
+SELECT location, COUNT(Сity_name) FROM Cities GROUP BY location HAVING COUNT(Сity_name) >= 3;
+//Выводит кол-во городов для тех стран, в которых находится 3 или больше городов
+}}}
+
+
